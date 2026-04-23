@@ -7,73 +7,73 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:system-ui,-apple-system,sans-serif;background:#f5f5f3;color:#1a1a18;min-height:100vh;padding:1.5rem 1rem}
+body{font-family:system-ui,-apple-system,sans-serif;background:#f5f5f3;color:#1a1a18;min-height:100vh;padding:1.5rem 1rem;font-size:16px}
 .wrap{max-width:720px;margin:0 auto}
 .header{border:1px solid #e0dfd7;border-radius:12px;padding:1.5rem;margin-bottom:1.5rem;background:#fff}
 .header-top{display:flex;align-items:center;gap:12px;margin-bottom:1rem}
 .sena-badge{background:#009A44;color:#fff;font-size:11px;font-weight:600;padding:5px 12px;border-radius:6px;letter-spacing:0.05em}
-.header h1{font-size:16px;font-weight:600;color:#1a1a18}
+.header h1{font-size:18px;font-weight:600;color:#1a1a18}
 .field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:0.75rem}
 .field-row.full{grid-template-columns:1fr}
-label{font-size:12px;color:#666;display:block;margin-bottom:4px;font-weight:500}
-input[type=text],input[type=number],input[type=email],textarea,select{width:100%;font-size:14px;padding:7px 10px;border:1px solid #ddd;border-radius:6px;background:#fff;color:#1a1a18;outline:none}
+label{font-size:15px;color:#666;display:block;margin-bottom:5px;font-weight:500}
+input[type=text],input[type=number],input[type=email],textarea,select{width:100%;font-size:17px;padding:10px 12px;border:1px solid #ddd;border-radius:6px;background:#fff;color:#1a1a18;outline:none}
 input:focus,select:focus,textarea:focus{border-color:#009A44}
 textarea{resize:vertical;min-height:70px}
 .phase{border:1px solid #e0dfd7;border-radius:12px;padding:1.5rem;margin-bottom:1rem;background:#fff}
-.phase-title{font-size:12px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:2px;display:flex;align-items:center;gap:8px}
+.phase-title{font-size:14px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:2px;display:flex;align-items:center;gap:8px}
 .phase-title span.num{background:#f0efe8;border:1px solid #ddd;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;color:#444}
-.phase-actividad{font-size:12px;color:#999;margin-bottom:1rem;padding-left:30px}
+.phase-actividad{font-size:15px;color:#999;margin-bottom:1rem;padding-left:30px}
 .phase-divider{border:none;border-top:1px solid #e8e8e0;margin:1.25rem 0}
 .area-block{border:1px solid #e0dfd7;border-radius:8px;margin-bottom:10px;overflow:hidden}
 .area-header{padding:8px 10px;background:#f8f7f0;display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:8px}
-.area-header select,.area-nivel{font-size:13px;padding:4px 7px;border:1px solid #ddd;border-radius:5px;background:#fff;color:#1a1a18}
+.area-header select,.area-nivel{font-size:15px;padding:7px 9px;border:1px solid #ddd;border-radius:5px;background:#fff;color:#1a1a18}
 .area-nivel{min-width:100px}
 .del-area{font-size:11px;color:#c0392b;background:none;border:none;cursor:pointer;white-space:nowrap;font-weight:500}
 .etbl{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
-.etbl th{font-size:11px;font-weight:600;color:#888;text-align:left;padding:5px 7px;border-bottom:1px solid #e8e8e0;background:#fff}
+.etbl th{font-size:13px;font-weight:600;color:#888;text-align:left;padding:5px 7px;border-bottom:1px solid #e8e8e0;background:#fff}
 .etbl td{padding:4px 5px;border-bottom:1px solid #f0efe8;vertical-align:middle}
-.etbl td input,.etbl td select{font-size:12px;padding:4px 6px;border:1px solid #ddd;border-radius:4px;background:#fff;color:#1a1a18;width:100%}
+.etbl td input,.etbl td select{font-size:15px;padding:6px 7px;border:1px solid #ddd;border-radius:4px;background:#fff;color:#1a1a18;width:100%}
 .etbl td.del-c,.tbl td.del-c{width:26px;text-align:center}
 .etbl td.del-c button,.tbl td.del-c button{background:none;border:none;cursor:pointer;font-size:14px;color:#bbb}
 .etbl td.del-c button:hover,.tbl td.del-c button:hover{color:#c0392b}
 .malo-tag{font-size:11px;color:#c0392b;padding:2px 7px;background:#fdecea;border-radius:4px;display:inline-block;font-weight:500}
 .area-footer{padding:6px 10px;background:#fff}
-.add-eq{font-size:12px;color:#0070c0;background:none;border:none;cursor:pointer;padding:2px 0;font-weight:500}
+.add-eq{font-size:16px;color:#0070c0;background:none;border:none;cursor:pointer;padding:4px 0;font-weight:500}
 .add-eq:hover{text-decoration:underline}
 .tbl{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
-.tbl th{font-size:11px;font-weight:600;color:#888;text-align:left;padding:5px 7px;border-bottom:1px solid #e0dfd7;background:#f8f7f0}
+.tbl th{font-size:14px;font-weight:600;color:#888;text-align:left;padding:8px 8px;border-bottom:1px solid #e0dfd7;background:#f8f7f0}
 .tbl td{padding:4px 5px;border-bottom:1px solid #f0efe8;vertical-align:middle}
-.tbl td input,.tbl td select{font-size:12px;padding:4px 6px;border:1px solid #ddd;border-radius:4px;background:#fff;color:#1a1a18;width:100%}
-.add-row{font-size:12px;color:#0070c0;background:none;border:none;cursor:pointer;padding:6px 0;margin-top:4px;display:block;font-weight:500}
+.tbl td input,.tbl td select{font-size:15px;padding:6px 7px;border:1px solid #ddd;border-radius:4px;background:#fff;color:#1a1a18;width:100%}
+.add-row{font-size:16px;color:#0070c0;background:none;border:none;cursor:pointer;padding:8px 0;margin-top:4px;display:block;font-weight:500}
 .add-row:hover{text-decoration:underline}
-.computed{background:#f8f7f0;border-radius:8px;padding:0.7rem 1rem;margin-top:0.5rem;font-size:13px;color:#666}
+.computed{background:#f8f7f0;border-radius:8px;padding:0.8rem 1rem;margin-top:0.5rem;font-size:16px;color:#666}
 .computed strong{color:#1a1a18;font-weight:600}
 .chart-wrap{margin-top:1rem}
 .f6-block{border:1px solid #e0dfd7;border-radius:8px;margin-bottom:10px;overflow:hidden}
 .f6-header{padding:8px 10px;background:#f8f7f0;display:flex;justify-content:space-between;align-items:center}
-.f6-header select{font-size:13px;padding:4px 7px;border:1px solid #ddd;border-radius:5px;background:#fff;color:#1a1a18;flex:1;margin-right:8px}
+.f6-header select{font-size:15px;padding:7px 9px;border:1px solid #ddd;border-radius:5px;background:#fff;color:#1a1a18;flex:1;margin-right:8px}
 .f6-body{padding:10px 12px}
-.f6-total-line{font-size:12px;color:#666;margin-top:6px}
+.f6-total-line{font-size:15px;color:#666;margin-top:6px}
 .f6-total-line strong{color:#009A44;font-weight:600}
 .badge-adecuado{background:#e6f4ec;color:#1a7a40;font-size:11px;padding:2px 8px;border-radius:5px;font-weight:500}
 .badge-inadecuado{background:#fdecea;color:#c0392b;font-size:11px;padding:2px 8px;border-radius:5px;font-weight:500}
 .pie-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:1rem}
 .pie-item{text-align:center}
-.pie-label{font-size:11px;color:#888;margin-top:5px}
-.pie-pcts{font-size:11px;margin-top:2px}
+.pie-label{font-size:13px;color:#888;margin-top:5px}
+.pie-pcts{font-size:13px;margin-top:3px}
 .resumen-card{background:#f8f7f0;border-radius:8px;padding:1rem;margin-bottom:0.75rem}
-.resumen-card h3{font-size:13px;font-weight:600;margin-bottom:0.5rem;color:#1a1a18}
-.resumen-item{font-size:12px;color:#666;margin-bottom:4px}
-.checklist label{display:flex;align-items:center;gap:8px;font-size:13px;color:#1a1a18;margin-bottom:8px;cursor:pointer}
+.resumen-card h3{font-size:16px;font-weight:600;margin-bottom:0.5rem;color:#1a1a18}
+.resumen-item{font-size:15px;color:#666;margin-bottom:5px}
+.checklist label{display:flex;align-items:center;gap:8px;font-size:16px;color:#1a1a18;margin-bottom:10px;cursor:pointer}
 .checklist input[type=checkbox]{width:15px;height:15px;accent-color:#009A44}
-.submit-btn{width:100%;padding:13px;background:#009A44;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;margin-top:0.5rem;letter-spacing:0.02em}
+.submit-btn{width:100%;padding:16px;background:#009A44;color:#fff;border:none;border-radius:8px;font-size:17px;font-weight:600;cursor:pointer;margin-top:0.5rem;letter-spacing:0.02em}
 .submit-btn:hover{background:#007a36}
 .submit-btn:disabled{background:#ccc;cursor:not-allowed}
-.status{font-size:13px;margin-top:0.75rem;padding:10px 14px;border-radius:8px;display:none}
+.status{font-size:15px;margin-top:0.75rem;padding:12px 14px;border-radius:8px;display:none}
 .status.ok{background:#e6f4ec;color:#1a7a40;display:block}
 .status.err{background:#fdecea;color:#c0392b;display:block}
 .dias-fijo{font-size:13px;padding:7px 10px;background:#f8f7f0;border-radius:6px;color:#888;border:1px solid #e0dfd7}
-.info-box{font-size:12px;color:#888;padding:8px 12px;background:#f8f7f0;border-radius:6px}
+.info-box{font-size:15px;color:#888;padding:10px 12px;background:#f8f7f0;border-radius:6px}
 </style>
 </head>
 <body>
@@ -118,7 +118,7 @@ textarea{resize:vertical;min-height:70px}
   </tr></thead><tbody id="t3body">
     <tr>
       <td><select><option value="">Seleccionar</option><option>Luces encendidas sin uso</option><option>Equipos conectados sin necesidad</option><option>Equipos dañados o antiguos</option><option>Uso excesivo de aire o ventiladores</option><option>Instalaciones eléctricas en mal estado</option><option>Otro</option></select></td>
-      <td><input type="text" placeholder="Ubicación"></td>
+      <td><select><option value="">Seleccionar área</option><option>Cafetería</option><option>Salón de mecánica</option><option>Biblioteca</option><option>Salones de clase</option><option>Oficinas</option><option>Sala de sistemas</option><option>Zonas comunes</option><option>Otro</option></select></td>
       <td><select><option value="">—</option><option>Alto</option><option>Medio</option><option>Bajo</option></select></td>
       <td><input type="text" placeholder="Detalle..."></td>
       <td class="del-c"><button onclick="this.closest('tr').remove()">✕</button></td>
@@ -262,7 +262,7 @@ function addEqRow(id){const tb=document.getElementById('eq-'+id);const tmp=docum
 
 function addT3(){
   const tb=document.getElementById('t3body');const tmp=document.createElement('tbody');
-  tmp.innerHTML=`<tr><td><select><option value="">Seleccionar</option><option>Luces encendidas sin uso</option><option>Equipos conectados sin necesidad</option><option>Equipos dañados o antiguos</option><option>Uso excesivo de aire o ventiladores</option><option>Instalaciones eléctricas en mal estado</option><option>Otro</option></select></td><td><input type="text" placeholder="Ubicación"></td><td><select><option value="">—</option><option>Alto</option><option>Medio</option><option>Bajo</option></select></td><td><input type="text" placeholder="Detalle..."></td><td class="del-c"><button onclick="this.closest('tr').remove()">✕</button></td></tr>`;
+  tmp.innerHTML=`<tr><td><select><option value="">Seleccionar</option><option>Luces encendidas sin uso</option><option>Equipos conectados sin necesidad</option><option>Equipos dañados o antiguos</option><option>Uso excesivo de aire o ventiladores</option><option>Instalaciones eléctricas en mal estado</option><option>Otro</option></select></td><td><select><option value="">Seleccionar área</option><option>Cafetería</option><option>Salón de mecánica</option><option>Biblioteca</option><option>Salones de clase</option><option>Oficinas</option><option>Sala de sistemas</option><option>Zonas comunes</option><option>Otro</option></select></td><td><select><option value="">—</option><option>Alto</option><option>Medio</option><option>Bajo</option></select></td><td><input type="text" placeholder="Detalle..."></td><td class="del-c"><button onclick="this.closest('tr').remove()">✕</button></td></tr>`;
   tb.appendChild(tmp.firstChild);
 }
 
