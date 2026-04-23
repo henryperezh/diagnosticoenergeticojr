@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía de Diagnóstico de Consumo de Energía — SENA</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:#f5f5f3;color:#1a1a18;min-height:100vh;padding:1.5rem 1rem}
+.wrap{max-width:720px;margin:0 auto}
+.header{border:1px solid #e0dfd7;border-radius:12px;padding:1.5rem;margin-bottom:1.5rem;background:#fff}
+.header-top{display:flex;align-items:center;gap:12px;margin-bottom:1rem}
+.sena-badge{background:#009A44;color:#fff;font-size:11px;font-weight:600;padding:5px 12px;border-radius:6px;letter-spacing:0.05em}
+.header h1{font-size:16px;font-weight:600;color:#1a1a18}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:0.75rem}
+.field-row.full{grid-template-columns:1fr}
+label{font-size:12px;color:#666;display:block;margin-bottom:4px;font-weight:500}
+input[type=text],input[type=number],input[type=email],textarea,select{width:100%;font-size:14px;padding:7px 10px;border:1px solid #ddd;border-radius:6px;background:#fff;color:#1a1a18;outline:none}
+input:focus,select:focus,textarea:focus{border-color:#009A44}
+textarea{resize:vertical;min-height:70px}
+.phase{border:1px solid #e0dfd7;border-radius:12px;padding:1.5rem;margin-bottom:1rem;background:#fff}
+.phase-title{font-size:12px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:2px;display:flex;align-items:center;gap:8px}
+.phase-title span.num{background:#f0efe8;border:1px solid #ddd;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;color:#444}
+.phase-actividad{font-size:12px;color:#999;margin-bottom:1rem;padding-left:30px}
+.phase-divider{border:none;border-top:1px solid #e8e8e0;margin:1.25rem 0}
+.area-block{border:1px solid #e0dfd7;border-radius:8px;margin-bottom:10px;overflow:hidden}
+.area-header{padding:8px 10px;background:#f8f7f0;display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:8px}
+.area-header select,.area-nivel{font-size:13px;padding:4px 7px;border:1px solid #ddd;border-radius:5px;background:#fff;color:#1a1a18}
+.area-nivel{min-width:100px}
+.del-area{font-size:11px;color:#c0392b;background:none;border:none;cursor:pointer;white-space:nowrap;font-weight:500}
+.etbl{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
+.etbl th{font-size:11px;font-weight:600;color:#888;text-align:left;padding:5px 7px;border-bottom:1px solid #e8e8e0;background:#fff}
+.etbl td{padding:4px 5px;border-bottom:1px solid #f0efe8;vertical-align:middle}
+.etbl td input,.etbl td select{font-size:12px;padding:4px 6px;border:1px solid #ddd;border-radius:4px;background:#fff;color:#1a1a18;width:100%}
+.etbl td.del-c,.tbl td.del-c{width:26px;text-align:center}
+.etbl td.del-c button,.tbl td.del-c button{background:none;border:none;cursor:pointer;font-size:14px;color:#bbb}
+.etbl td.del-c button:hover,.tbl td.del-c button:hover{color:#c0392b}
+.malo-tag{font-size:11px;color:#c0392b;padding:2px 7px;background:#fdecea;border-radius:4px;display:inline-block;font-weight:500}
+.area-footer{padding:6px 10px;background:#fff}
+.add-eq{font-size:12px;color:#0070c0;background:none;border:none;cursor:pointer;padding:2px 0;font-weight:500}
+.add-eq:hover{text-decoration:underline}
+.tbl{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
+.tbl th{font-size:11px;font-weight:600;color:#888;text-align:left;padding:5px 7px;border-bottom:1px solid #e0dfd7;background:#f8f7f0}
+.tbl td{padding:4px 5px;border-bottom:1px solid #f0efe8;vertical-align:middle}
+.tbl td input,.tbl td select{font-size:12px;padding:4px 6px;border:1px solid #ddd;border-radius:4px;background:#fff;color:#1a1a18;width:100%}
+.add-row{font-size:12px;color:#0070c0;background:none;border:none;cursor:pointer;padding:6px 0;margin-top:4px;display:block;font-weight:500}
+.add-row:hover{text-decoration:underline}
+.computed{background:#f8f7f0;border-radius:8px;padding:0.7rem 1rem;margin-top:0.5rem;font-size:13px;color:#666}
+.computed strong{color:#1a1a18;font-weight:600}
+.chart-wrap{margin-top:1rem}
+.f6-block{border:1px solid #e0dfd7;border-radius:8px;margin-bottom:10px;overflow:hidden}
+.f6-header{padding:8px 10px;background:#f8f7f0;display:flex;justify-content:space-between;align-items:center}
+.f6-header select{font-size:13px;padding:4px 7px;border:1px solid #ddd;border-radius:5px;background:#fff;color:#1a1a18;flex:1;margin-right:8px}
+.f6-body{padding:10px 12px}
+.f6-total-line{font-size:12px;color:#666;margin-top:6px}
+.f6-total-line strong{color:#009A44;font-weight:600}
+.badge-adecuado{background:#e6f4ec;color:#1a7a40;font-size:11px;padding:2px 8px;border-radius:5px;font-weight:500}
+.badge-inadecuado{background:#fdecea;color:#c0392b;font-size:11px;padding:2px 8px;border-radius:5px;font-weight:500}
+.pie-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:1rem}
+.pie-item{text-align:center}
+.pie-label{font-size:11px;color:#888;margin-top:5px}
+.pie-pcts{font-size:11px;margin-top:2px}
+.resumen-card{background:#f8f7f0;border-radius:8px;padding:1rem;margin-bottom:0.75rem}
+.resumen-card h3{font-size:13px;font-weight:600;margin-bottom:0.5rem;color:#1a1a18}
+.resumen-item{font-size:12px;color:#666;margin-bottom:4px}
+.checklist label{display:flex;align-items:center;gap:8px;font-size:13px;color:#1a1a18;margin-bottom:8px;cursor:pointer}
+.checklist input[type=checkbox]{width:15px;height:15px;accent-color:#009A44}
+.submit-btn{width:100%;padding:13px;background:#009A44;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;margin-top:0.5rem;letter-spacing:0.02em}
+.submit-btn:hover{background:#007a36}
+.submit-btn:disabled{background:#ccc;cursor:not-allowed}
+.status{font-size:13px;margin-top:0.75rem;padding:10px 14px;border-radius:8px;display:none}
+.status.ok{background:#e6f4ec;color:#1a7a40;display:block}
+.status.err{background:#fdecea;color:#c0392b;display:block}
+.dias-fijo{font-size:13px;padding:7px 10px;background:#f8f7f0;border-radius:6px;color:#888;border:1px solid #e0dfd7}
+.info-box{font-size:12px;color:#888;padding:8px 12px;background:#f8f7f0;border-radius:6px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="header">
+  <div class="header-top"><span class="sena-badge">SENA</span><h1>Guía de diagnóstico de consumo de energía</h1></div>
+  <div class="field-row">
+    <div><label>Institución educativa</label><input type="text" id="institucion" value="Jorge Robledo"></div>
+    <div><label>Nombre del grupo</label><input type="text" id="grupo" value="Poderoso Grupo Escolar"></div>
+  </div>
+  <div class="field-row">
+    <div><label>Poderoso</label>
+      <select id="alumno">
+        <option value="">Seleccionar Poderoso...</option>
+        <option>Luisana</option><option>Brandon</option><option>Yoghan</option><option>Henry</option>
+        <option>Harris</option><option>Ivana</option><option>Pendiente 1</option>
+      </select>
+    </div>
+    <div><label>Correo electrónico</label><input type="email" id="correo" placeholder="correo@ejemplo.com"></div>
+  </div>
+</div>
+
+<!-- FASES 1 + 2 -->
+<div class="phase">
+  <div class="phase-title"><span class="num">1</span>Reconocimiento general</div>
+  <div class="phase-actividad">Actividad: Recorrido por toda la institución — identificar áreas con consumo de energía</div>
+  <div id="areas-container"></div>
+  <button class="add-row" onclick="addArea()">+ Agregar área</button>
+  <hr class="phase-divider">
+  <div class="phase-title"><span class="num">2</span>Identificación de equipos eléctricos</div>
+  <div class="phase-actividad">Actividad: Inventario de equipos — registrados por área en la tabla anterior</div>
+  <div class="info-box">Los equipos se registran directamente en cada área de la Fase 1.</div>
+</div>
+
+<!-- FASE 3 -->
+<div class="phase">
+  <div class="phase-title"><span class="num">3</span>Detección de problemas</div>
+  <div class="phase-actividad">Actividad: Identificar desperdicios de energía</div>
+  <table class="tbl"><thead><tr>
+    <th style="width:32%">Tipo de problema</th><th style="width:25%">Ubicación</th><th style="width:20%">Nivel de gravedad</th><th style="width:19%">Observación</th><th style="width:26px"></th>
+  </tr></thead><tbody id="t3body">
+    <tr>
+      <td><select><option value="">Seleccionar</option><option>Luces encendidas sin uso</option><option>Equipos conectados sin necesidad</option><option>Equipos dañados o antiguos</option><option>Uso excesivo de aire o ventiladores</option><option>Instalaciones eléctricas en mal estado</option><option>Otro</option></select></td>
+      <td><input type="text" placeholder="Ubicación"></td>
+      <td><select><option value="">—</option><option>Alto</option><option>Medio</option><option>Bajo</option></select></td>
+      <td><input type="text" placeholder="Detalle..."></td>
+      <td class="del-c"><button onclick="this.closest('tr').remove()">✕</button></td>
+    </tr>
+  </tbody></table>
+  <button class="add-row" onclick="addT3()">+ Agregar problema</button>
+</div>
+
+<!-- FASE 4 -->
+<div class="phase">
+  <div class="phase-title"><span class="num">4</span>Medición del consumo</div>
+  <div class="phase-actividad">Actividad: Revisar medidor de energía y facturas de electricidad</div>
+  <table class="tbl"><thead><tr>
+    <th style="width:28%">Mes</th><th style="width:20%">Consumo (kWh)</th><th style="width:20%">N° estudiantes</th><th style="width:24%">kWh/persona</th><th style="width:26px"></th>
+  </tr></thead><tbody id="t4body"></tbody></table>
+  <button class="add-row" onclick="addMes()">+ Agregar mes</button>
+  <div class="chart-wrap"><canvas id="chart4"></canvas></div>
+</div>
+
+<!-- FASE 5 -->
+<div class="phase">
+  <div class="phase-title"><span class="num">5</span>Hábitos de consumo</div>
+  <div class="phase-actividad">Actividad: Observación o encuesta a estudiantes</div>
+  <table class="tbl"><thead><tr>
+    <th style="width:26%">Nombre y apellido</th><th style="width:16%">¿Apagan luces?</th><th style="width:16%">¿Desconectan equipos?</th><th style="width:16%">¿Aprovechan luz natural?</th><th style="width:20%">Clasificación</th><th style="width:26px"></th>
+  </tr></thead><tbody id="t5body">
+    <tr>
+      <td><input type="text" placeholder="Nombre y apellido"></td>
+      <td><select onchange="updateHabitos()"><option value="">—</option><option>Sí</option><option>No</option></select></td>
+      <td><select onchange="updateHabitos()"><option value="">—</option><option>Sí</option><option>No</option></select></td>
+      <td><select onchange="updateHabitos()"><option value="">—</option><option>Sí</option><option>No</option></select></td>
+      <td class="clasif-cell"><span style="font-size:11px;color:#bbb">—</span></td>
+      <td class="del-c"><button onclick="this.closest('tr').remove();updateHabitos()">✕</button></td>
+    </tr>
+  </tbody></table>
+  <button class="add-row" onclick="addT5()">+ Agregar persona</button>
+  <div class="pie-row">
+    <div class="pie-item"><canvas id="pie1" width="140" height="140"></canvas><div class="pie-label">¿Apagan luces?</div><div class="pie-pcts" id="pct1"></div></div>
+    <div class="pie-item"><canvas id="pie2" width="140" height="140"></canvas><div class="pie-label">¿Desconectan equipos?</div><div class="pie-pcts" id="pct2"></div></div>
+    <div class="pie-item"><canvas id="pie3" width="140" height="140"></canvas><div class="pie-label">¿Aprovechan luz natural?</div><div class="pie-pcts" id="pct3"></div></div>
+  </div>
+</div>
+
+<!-- FASE 6 -->
+<div class="phase">
+  <div class="phase-title"><span class="num">6</span>Uso de la energía por actividades</div>
+  <div class="phase-actividad">Actividad: Registrar equipos, consumo por hora y calcular consumo mensual (20 días/mes)</div>
+  <div id="f6-container"></div>
+  <button class="add-row" onclick="addF6()">+ Agregar tipo de equipo</button>
+  <div class="computed" id="f6-total">Consumo total calculado: <strong>0.00 kWh</strong></div>
+  <div class="chart-wrap"><canvas id="chart6" height="160"></canvas></div>
+</div>
+
+<!-- FASE 7 -->
+<div class="phase">
+  <div class="phase-title"><span class="num">7</span>Análisis final</div>
+  <div class="phase-actividad">Actividad: Responder preguntas de análisis crítico</div>
+  <div class="field-row full" style="margin-bottom:0.75rem"><label>¿Dónde se consume más energía?</label><textarea id="a1" placeholder="Respuesta..."></textarea></div>
+  <div class="field-row full" style="margin-bottom:0.75rem"><label>¿Dónde hay desperdicio?</label><textarea id="a2" placeholder="Respuesta..."></textarea></div>
+  <div class="field-row full" style="margin-bottom:0.75rem"><label>¿Qué equipos generan mayor consumo?</label><textarea id="a3" placeholder="Respuesta..."></textarea></div>
+  <div class="field-row full"><label>¿Qué prácticas son inadecuadas?</label><textarea id="a4" placeholder="Respuesta..."></textarea></div>
+</div>
+
+<!-- PRODUCTO FINAL -->
+<div class="phase">
+  <div class="phase-title"><span class="num" style="background:#e8f4fd;color:#0070c0;border-color:#b8d8f0">★</span>Producto final — Resumen automático</div>
+  <div class="phase-actividad">Consolidado generado a partir de los datos ingresados</div>
+  <div id="resumen-container"><div style="font-size:12px;color:#bbb;padding:0.5rem 0">Complete el formulario y presione actualizar.</div></div>
+  <button class="add-row" onclick="generarResumen()" style="color:#009A44;font-weight:600">↻ Actualizar resumen</button>
+  <hr class="phase-divider">
+  <div style="font-size:13px;font-weight:600;margin-bottom:0.75rem;color:#1a1a18">Lista de chequeo — Producto final</div>
+  <div class="checklist">
+    <label><input type="checkbox"> Lista de chequeo diligenciada</label>
+    <label><input type="checkbox"> Registro fotográfico</label>
+    <label><input type="checkbox"> Inventario de equipos</label>
+    <label><input type="checkbox"> Análisis de consumo</label>
+  </div>
+</div>
+
+<button class="submit-btn" id="btnEnviar" onclick="enviar()">Guardar en Google Sheets</button>
+<div class="status" id="status-msg"></div>
+
+</div>
+
+<script>
+const APPS_SCRIPT_URL = ''; // Pegar aquí el URL del Apps Script cuando esté listo
+
+const AREAS_OPTS=['Cafetería','Salón de mecánica','Biblioteca','Salones de clase','Oficinas','Sala de sistemas','Zonas comunes','Otro'];
+const EQUIPOS_OPTS=['Bombillos','Computadores','Ventiladores','Aires acondicionados','Neveras','Impresoras','Proyectores','Otros'];
+const MESES=['Marzo 2025','Abril 2025','Mayo 2025','Junio 2025','Julio 2025','Agosto 2025','Septiembre 2025','Octubre 2025','Noviembre 2025','Diciembre 2025','Enero 2026','Febrero 2026','Marzo 2026'];
+const TIPOS_F6=['Iluminación','Equipos tecnológicos','Ventilación o climatización','Refrigeración'];
+const EQUIPOS_F6={
+  'Iluminación':['Bombillo LED','Bombillo fluorescente','Bombillo incandescente','Lámpara halógena','Otro'],
+  'Equipos tecnológicos':['Computador de escritorio','Portátil','Proyector','Impresora','Televisor','Otro'],
+  'Ventilación o climatización':['Ventilador de techo','Ventilador de pie','Aire acondicionado','Otro'],
+  'Refrigeración':['Nevera pequeña','Nevera grande','Congelador','Otro']
+};
+const DIAS_MES=20;
+let areaCount=0,f6Count=0,chart4Inst=null,chart6Inst=null,pie1I=null,pie2I=null,pie3I=null;
+const f6Totales={};
+
+function addArea(){
+  const id=++areaCount;
+  const c=document.getElementById('areas-container');
+  const b=document.createElement('div');b.className='area-block';b.id='area-block-'+id;
+  b.innerHTML=`<div class="area-header">
+    <select id="area-sel-${id}"><option value="">Seleccionar área...</option>${AREAS_OPTS.map(a=>`<option>${a}</option>`).join('')}</select>
+    <select class="area-nivel"><option value="">Nivel de uso</option><option>Alto</option><option>Medio</option><option>Bajo</option></select>
+    <button class="del-area" onclick="document.getElementById('area-block-${id}').remove()">✕ Eliminar</button>
+  </div>
+  <table class="etbl"><thead><tr><th style="width:26%">Equipo</th><th style="width:20%">Marca</th><th style="width:13%">Cantidad</th><th style="width:17%">Estado</th><th style="width:19%">Uso</th><th style="width:26px"></th></tr></thead>
+  <tbody id="eq-${id}">${eqRow()}</tbody></table>
+  <div class="area-footer"><button class="add-eq" onclick="addEqRow(${id})">+ Agregar equipo</button></div>`;
+  c.appendChild(b);
+}
+
+function eqRow(){
+  return `<tr>
+    <td><select onchange="chkOtro(this)"><option value="">Seleccionar</option>${EQUIPOS_OPTS.map(e=>`<option>${e}</option>`).join('')}</select></td>
+    <td><input type="text" placeholder="Marca"></td>
+    <td><input type="number" min="0" placeholder="0"></td>
+    <td><select onchange="chkMalo(this)"><option value="">—</option><option>Bueno</option><option>Regular</option><option>Malo</option></select></td>
+    <td class="uso-cell"><select><option value="">—</option><option>Alto</option><option>Medio</option><option>Bajo</option></select></td>
+    <td class="del-c"><button onclick="this.closest('tr').remove()">✕</button></td>
+  </tr>`;
+}
+
+function chkOtro(sel){
+  const td=sel.closest('td');let inp=td.querySelector('.otro-inp');
+  if(sel.value==='Otros'){if(!inp){inp=document.createElement('input');inp.type='text';inp.placeholder='Especificar...';inp.className='otro-inp';inp.style.marginTop='4px';td.appendChild(inp);}}
+  else{if(inp)inp.remove();}
+}
+
+function chkMalo(sel){
+  const uc=sel.closest('tr').querySelector('.uso-cell');
+  if(sel.value==='Malo'){uc.innerHTML='<span class="malo-tag">Sin consumo</span>';}
+  else if(!uc.querySelector('select')){uc.innerHTML='<select><option value="">—</option><option>Alto</option><option>Medio</option><option>Bajo</option></select>';}
+}
+
+function addEqRow(id){const tb=document.getElementById('eq-'+id);const tmp=document.createElement('tbody');tmp.innerHTML=eqRow();tb.appendChild(tmp.firstChild);}
+
+function addT3(){
+  const tb=document.getElementById('t3body');const tmp=document.createElement('tbody');
+  tmp.innerHTML=`<tr><td><select><option value="">Seleccionar</option><option>Luces encendidas sin uso</option><option>Equipos conectados sin necesidad</option><option>Equipos dañados o antiguos</option><option>Uso excesivo de aire o ventiladores</option><option>Instalaciones eléctricas en mal estado</option><option>Otro</option></select></td><td><input type="text" placeholder="Ubicación"></td><td><select><option value="">—</option><option>Alto</option><option>Medio</option><option>Bajo</option></select></td><td><input type="text" placeholder="Detalle..."></td><td class="del-c"><button onclick="this.closest('tr').remove()">✕</button></td></tr>`;
+  tb.appendChild(tmp.firstChild);
+}
+
+function addMes(){
+  const tb=document.getElementById('t4body');
+  const tr=document.createElement('tr');
+  tr.innerHTML=`<td><select>${MESES.map(m=>`<option>${m}</option>`).join('')}</select></td><td><input type="number" min="0" step="0.01" placeholder="0" oninput="updateChart4()"></td><td><input type="number" min="1" placeholder="0" oninput="updateChart4()"></td><td class="cpp-cell" style="font-size:12px;color:#888">—</td><td class="del-c"><button onclick="this.closest('tr').remove();updateChart4()">✕</button></td>`;
+  tb.appendChild(tr);updateChart4();
+}
+
+function linReg(pts){
+  const n=pts.length;if(n<2) return null;
+  let sx=0,sy=0,sxy=0,sx2=0;
+  pts.forEach((p,i)=>{sx+=i;sy+=p;sxy+=i*p;sx2+=i*i;});
+  const m=(n*sxy-sx*sy)/(n*sx2-sx*sx),b=(sy-m*sx)/n;
+  return pts.map((_,i)=>parseFloat((m*i+b).toFixed(2)));
+}
+
+function updateChart4(){
+  const rows=document.getElementById('t4body').querySelectorAll('tr');
+  const labels=[],kwhs=[],cpps=[];
+  rows.forEach(r=>{
+    const sel=r.querySelector('select');const inps=r.querySelectorAll('input[type=number]');const cppCell=r.querySelector('.cpp-cell');
+    if(!sel||!inps[0]||!inps[1]) return;
+    const kwh=parseFloat(inps[0].value)||0,est=parseFloat(inps[1].value)||0;
+    const cpp=est>0?parseFloat((kwh/est).toFixed(2)):null;
+    if(cppCell) cppCell.textContent=cpp!==null?cpp+' kWh':'—';
+    labels.push(sel.value||'—');kwhs.push(kwh);cpps.push(cpp!==null?cpp:0);
+  });
+  const tend=linReg(kwhs);
+  const ctx=document.getElementById('chart4').getContext('2d');
+  if(chart4Inst) chart4Inst.destroy();
+  const ds=[
+    {label:'Consumo (kWh)',data:kwhs,backgroundColor:'rgba(0,154,68,0.65)',type:'bar',yAxisID:'y'},
+    {label:'kWh/persona',data:cpps,backgroundColor:'rgba(0,100,200,0.5)',type:'bar',yAxisID:'y'},
+  ];
+  if(tend) ds.push({label:'Tendencia',data:tend,type:'line',borderColor:'rgba(220,80,0,0.9)',backgroundColor:'transparent',borderWidth:2,pointRadius:3,tension:0.3,yAxisID:'y'});
+  chart4Inst=new Chart(ctx,{type:'bar',data:{labels,datasets:ds},options:{responsive:true,plugins:{legend:{labels:{font:{size:11}}}},scales:{y:{beginAtZero:true,ticks:{font:{size:10}}}}}});
+}
+
+function addT5(){
+  const tb=document.getElementById('t5body');const tmp=document.createElement('tbody');
+  tmp.innerHTML=`<tr><td><input type="text" placeholder="Nombre y apellido"></td><td><select onchange="updateHabitos()"><option value="">—</option><option>Sí</option><option>No</option></select></td><td><select onchange="updateHabitos()"><option value="">—</option><option>Sí</option><option>No</option></select></td><td><select onchange="updateHabitos()"><option value="">—</option><option>Sí</option><option>No</option></select></td><td class="clasif-cell"><span style="font-size:11px;color:#bbb">—</span></td><td class="del-c"><button onclick="this.closest('tr').remove();updateHabitos()">✕</button></td></tr>`;
+  tb.appendChild(tmp.firstChild);
+}
+
+function updateHabitos(){
+  const rows=document.getElementById('t5body').querySelectorAll('tr');
+  let c1=[0,0],c2=[0,0],c3=[0,0];
+  rows.forEach(r=>{
+    const sels=r.querySelectorAll('select');const cell=r.querySelector('.clasif-cell');
+    if(!sels[0]||!sels[1]||!sels[2]) return;
+    const v=[sels[0].value,sels[1].value,sels[2].value];
+    if(!v.includes('')){const nos=v.filter(x=>x==='No').length;cell.innerHTML=nos>=2?'<span class="badge-inadecuado">Inadecuado</span>':'<span class="badge-adecuado">Adecuado</span>';}
+    if(sels[0].value==='Sí') c1[0]++;else if(sels[0].value==='No') c1[1]++;
+    if(sels[1].value==='Sí') c2[0]++;else if(sels[1].value==='No') c2[1]++;
+    if(sels[2].value==='Sí') c3[0]++;else if(sels[2].value==='No') c3[1]++;
+  });
+  pie1I=drawPie('pie1',c1,'pct1',pie1I);
+  pie2I=drawPie('pie2',c2,'pct2',pie2I);
+  pie3I=drawPie('pie3',c3,'pct3',pie3I);
+}
+
+function drawPie(cid,counts,pctId,prev){
+  const ctx=document.getElementById(cid).getContext('2d');
+  if(prev) prev.destroy();
+  const total=counts[0]+counts[1];
+  const p1=total>0?Math.round(counts[0]/total*100):0,p2=total>0?Math.round(counts[1]/total*100):0;
+  document.getElementById(pctId).innerHTML=`<span style="color:#009A44">Sí: ${p1}%</span> &nbsp; <span style="color:#c0392b">No: ${p2}%</span>`;
+  return new Chart(ctx,{type:'doughnut',data:{labels:['Sí','No'],datasets:[{data:counts,backgroundColor:['rgba(0,154,68,0.75)','rgba(192,57,43,0.65)'],borderWidth:1}]},options:{responsive:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>{const pct=total>0?Math.round(c.parsed/total*100):0;return c.label+': '+c.parsed+' ('+pct+'%)';}}}}}});
+}
+
+function addF6(){
+  const id=++f6Count;f6Totales[id]=0;
+  const c=document.getElementById('f6-container');
+  const b=document.createElement('div');b.className='f6-block';b.id='f6b-'+id;
+  b.innerHTML=`<div class="f6-header"><select id="f6t-${id}" onchange="updF6Eq(${id})"><option value="">Seleccionar tipo...</option>${TIPOS_F6.map(t=>`<option>${t}</option>`).join('')}</select><button class="del-area" onclick="document.getElementById('f6b-${id}').remove();delete f6Totales[${id}];calcF6Total()">✕</button></div>
+  <div class="f6-body">
+    <div class="field-row"><div><label>Equipo específico</label><select id="f6e-${id}"><option value="">Seleccionar tipo primero</option></select></div><div><label>Marca</label><input type="text" id="f6m-${id}" placeholder="Ej: Samsung"></div></div>
+    <div class="field-row"><div><label>Cantidad de equipos</label><input type="number" id="f6c-${id}" min="1" placeholder="0" oninput="calcF6(${id})"></div><div><label>Consumo por equipo (kWh/h)</label><input type="number" id="f6k-${id}" min="0" step="0.001" placeholder="0.000" oninput="calcF6(${id})"></div></div>
+    <div class="field-row"><div><label>Horas de uso al día</label><input type="number" id="f6h-${id}" min="0" step="0.5" placeholder="0" oninput="calcF6(${id})"></div><div><label>Días al mes</label><div class="dias-fijo">20 días (fijo)</div></div></div>
+    <div class="f6-total-line" id="f6r-${id}">Consumo mensual estimado: <strong>—</strong></div>
+  </div>`;
+  c.appendChild(b);
+}
+
+function updF6Eq(id){
+  const tipo=document.getElementById('f6t-'+id).value;
+  const sel=document.getElementById('f6e-'+id);
+  sel.innerHTML='<option value="">Seleccionar</option>'+(EQUIPOS_F6[tipo]||[]).map(e=>`<option>${e}</option>`).join('');
+}
+
+function calcF6(id){
+  const cant=parseFloat(document.getElementById('f6c-'+id).value)||0;
+  const kwh=parseFloat(document.getElementById('f6k-'+id).value)||0;
+  const hrs=parseFloat(document.getElementById('f6h-'+id).value)||0;
+  const total=cant*kwh*hrs*DIAS_MES;
+  f6Totales[id]=total;
+  document.getElementById('f6r-'+id).innerHTML='Consumo mensual estimado: <strong>'+total.toFixed(2)+' kWh</strong>';
+  calcF6Total();
+}
+
+function calcF6Total(){
+  let sum=0;const catTotals={};
+  Object.keys(f6Totales).forEach(id=>{
+    const v=f6Totales[id]||0;sum+=v;
+    const tipoEl=document.getElementById('f6t-'+id);
+    const tipo=tipoEl?tipoEl.value:'';
+    if(tipo) catTotals[tipo]=(catTotals[tipo]||0)+v;
+  });
+  document.getElementById('f6-total').innerHTML='Consumo total calculado: <strong>'+sum.toFixed(2)+' kWh</strong>';
+  updateChart6(catTotals);
+}
+
+function updateChart6(catTotals){
+  const labels=Object.keys(catTotals);
+  const data=labels.map(k=>parseFloat(catTotals[k].toFixed(2)));
+  const colors=['rgba(0,154,68,0.7)','rgba(0,100,200,0.7)','rgba(220,140,0,0.7)','rgba(180,0,180,0.6)'];
+  const ctx=document.getElementById('chart6').getContext('2d');
+  if(chart6Inst) chart6Inst.destroy();
+  if(!labels.length) return;
+  chart6Inst=new Chart(ctx,{type:'bar',data:{labels,datasets:[{label:'kWh/mes por categoría',data,backgroundColor:colors.slice(0,labels.length)}]},options:{responsive:true,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.parsed.x.toFixed(2)+' kWh'}}},scales:{x:{beginAtZero:true,ticks:{font:{size:10}}}}}});
+}
+
+function generarResumen(){
+  const rc=document.getElementById('resumen-container');
+  const alumno=document.getElementById('alumno').value||'—';
+  const inst=document.getElementById('institucion').value||'—';
+  const areas=[];
+  document.querySelectorAll('.area-block').forEach(b=>{
+    const id=b.id.replace('area-block-','');
+    const area=document.getElementById('area-sel-'+id)?.value||'Sin nombre';
+    const nivel=b.querySelector('.area-nivel')?.value||'—';
+    const eqs=[];
+    b.querySelectorAll('tbody tr').forEach(r=>{
+      const sels=r.querySelectorAll('select');const inps=r.querySelectorAll('input[type=number]');
+      if(sels[0]&&sels[0].value) eqs.push(sels[0].value+' — cant: '+(inps[0]?inps[0].value:'—')+', estado: '+(sels[1]?sels[1].value:'—'));
+    });
+    areas.push({area,nivel,eqs});
+  });
+  const rows4=document.getElementById('t4body').querySelectorAll('tr');
+  let totalKwh=0,nMed=0;
+  rows4.forEach(r=>{const v=parseFloat(r.querySelectorAll('input[type=number]')[0]?.value)||0;if(v>0){totalKwh+=v;nMed++;}});
+  const f6t=document.getElementById('f6-total').querySelector('strong').textContent;
+  let adeq=0,inadeq=0;
+  document.querySelectorAll('#t5body .clasif-cell').forEach(c=>{if(c.textContent.includes('Inadecuado')) inadeq++;else if(c.textContent.includes('Adecuado')) adeq++;});
+  const a1=document.getElementById('a1').value,a2=document.getElementById('a2').value;
+  const a3=document.getElementById('a3').value,a4=document.getElementById('a4').value;
+  let html=`<div class="resumen-card"><h3>Grupo e institución</h3><div class="resumen-item">Poderoso: <strong>${alumno}</strong></div><div class="resumen-item">Institución: <strong>${inst}</strong></div></div>`;
+  if(areas.length){html+=`<div class="resumen-card"><h3>Áreas e inventario de equipos</h3>`;areas.forEach(a=>{html+=`<div class="resumen-item" style="margin-top:4px"><strong>${a.area}</strong> — nivel de uso: ${a.nivel}</div>`;a.eqs.forEach(e=>html+=`<div class="resumen-item" style="padding-left:12px">• ${e}</div>`);});html+=`</div>`;}
+  html+=`<div class="resumen-card"><h3>Consumo energético</h3><div class="resumen-item">Promedio mensual: <strong>${nMed>0?(totalKwh/nMed).toFixed(2):'—'} kWh</strong> (${nMed} mes(es))</div><div class="resumen-item">Consumo estimado por actividades: <strong>${f6t}</strong></div></div>`;
+  html+=`<div class="resumen-card"><h3>Hábitos de consumo</h3><div class="resumen-item">Hábitos adecuados: <strong>${adeq}</strong></div><div class="resumen-item">Hábitos inadecuados: <strong>${inadeq}</strong></div></div>`;
+  if(a1||a2||a3||a4){html+=`<div class="resumen-card"><h3>Análisis final</h3>`;if(a1) html+=`<div class="resumen-item"><strong>Mayor consumo:</strong> ${a1}</div>`;if(a2) html+=`<div class="resumen-item"><strong>Desperdicio:</strong> ${a2}</div>`;if(a3) html+=`<div class="resumen-item"><strong>Equipos de mayor consumo:</strong> ${a3}</div>`;if(a4) html+=`<div class="resumen-item"><strong>Prácticas inadecuadas:</strong> ${a4}</div>`;html+=`</div>`;}
+  rc.innerHTML=html;
+}
+
+function enviar(){
+  if(!APPS_SCRIPT_URL){
+    const s=document.getElementById('status-msg');s.className='status err';
+    s.textContent='Falta configurar el URL de Google Apps Script en el archivo.';return;
+  }
+  const btn=document.getElementById('btnEnviar');btn.disabled=true;btn.textContent='Enviando...';
+  fetch(APPS_SCRIPT_URL,{method:'POST',body:JSON.stringify({alumno:document.getElementById('alumno').value,correo:document.getElementById('correo').value})})
+    .then(()=>{const s=document.getElementById('status-msg');s.className='status ok';s.textContent='Datos guardados correctamente.';btn.textContent='Guardar en Google Sheets';btn.disabled=false;})
+    .catch(()=>{const s=document.getElementById('status-msg');s.className='status err';s.textContent='Error al enviar. Verifique el URL del Apps Script.';btn.textContent='Guardar en Google Sheets';btn.disabled=false;});
+}
+
+addArea();addMes();addF6();
+</script>
+</body>
+</html>
