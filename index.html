@@ -80,7 +80,7 @@ textarea{resize:vertical;min-height:70px}
 <div class="wrap">
 
 <div class="header">
-  <div class="header-top"><span class="sena-badge">SENA</span><h1>Guía de diagnóstico de consumo de energía</h1></div>
+  <div class="header-top"><span class="sena-badge">VIJES VISIBLE</span><h1>Guía de diagnóstico de consumo de energía</h1></div>
   <div class="field-row">
     <div><label>Institución educativa</label><input type="text" id="institucion" value="Jorge Robledo"></div>
     <div><label>Nombre del grupo</label><input type="text" id="grupo" value="Poderoso Grupo Escolar"></div>
@@ -89,8 +89,14 @@ textarea{resize:vertical;min-height:70px}
     <div><label>Poderoso</label>
       <select id="alumno">
         <option value="">Seleccionar Poderoso...</option>
-        <option>Luisana</option><option>Brandon</option><option>Yoghan</option><option>Henry</option>
-        <option>Harris</option><option>Ivana</option><option>Pendiente 1</option>
+        <option>Luisana</option>
+        <option>Maria Camila</option>
+        <option>Brandon Stiven</option>
+        <option>Ibana</option>
+        <option>Harris</option>
+        <option>Yoghan</option>
+        <option>Daniel</option>
+        <option>Henry</option>
       </select>
     </div>
     <div><label>Correo electrónico</label><input type="email" id="correo" placeholder="correo@ejemplo.com"></div>
@@ -180,6 +186,7 @@ textarea{resize:vertical;min-height:70px}
   <div class="field-row full" style="margin-bottom:0.75rem"><label>¿Dónde hay desperdicio?</label><textarea id="a2" placeholder="Respuesta..."></textarea></div>
   <div class="field-row full" style="margin-bottom:0.75rem"><label>¿Qué equipos generan mayor consumo?</label><textarea id="a3" placeholder="Respuesta..."></textarea></div>
   <div class="field-row full"><label>¿Qué prácticas son inadecuadas?</label><textarea id="a4" placeholder="Respuesta..."></textarea></div>
+  <div class="field-row full" style="margin-top:0.75rem"><label>¿Qué acciones propone el grupo para reducir el consumo energético?</label><textarea id="a5" placeholder="Respuesta..."></textarea></div>
 </div>
 
 <!-- PRODUCTO FINAL -->
@@ -216,6 +223,26 @@ const EQUIPOS_F6={
   'Ventilación o climatización':['Ventilador de techo','Ventilador de pie','Aire acondicionado','Otro'],
   'Refrigeración':['Nevera pequeña','Nevera grande','Congelador','Otro']
 };
+
+const CONSUMO_F6={
+  'Bombillo LED':0.01,
+  'Bombillo fluorescente':0.04,
+  'Bombillo incandescente':0.06,
+  'Lámpara halógena':0.05,
+  'Computador de escritorio':0.20,
+  'Portátil':0.065,
+  'Proyector':0.30,
+  'Impresora':0.10,
+  'Televisor':0.10,
+  'Ventilador de techo':0.075,
+  'Ventilador de pie':0.07,
+  'Aire acondicionado':1.50,
+  'Nevera pequeña':0.12,
+  'Nevera grande':0.18,
+  'Congelador':0.20,
+  'Otro':0
+};
+
 const DIAS_MES=20;
 let areaCount=0,f6Count=0,chart4Inst=null,chart6Inst=null,pie1I=null,pie2I=null,pie3I=null;
 const f6Totales={};
@@ -341,9 +368,9 @@ function addF6(){
   const b=document.createElement('div');b.className='f6-block';b.id='f6b-'+id;
   b.innerHTML=`<div class="f6-header"><select id="f6t-${id}" onchange="updF6Eq(${id})"><option value="">Seleccionar tipo...</option>${TIPOS_F6.map(t=>`<option>${t}</option>`).join('')}</select><button class="del-area" onclick="document.getElementById('f6b-${id}').remove();delete f6Totales[${id}];calcF6Total()">✕</button></div>
   <div class="f6-body">
-    <div class="field-row"><div><label>Equipo específico</label><select id="f6e-${id}"><option value="">Seleccionar tipo primero</option></select></div><div><label>Marca</label><input type="text" id="f6m-${id}" placeholder="Ej: Samsung"></div></div>
-    <div class="field-row"><div><label>Cantidad de equipos</label><input type="number" id="f6c-${id}" min="1" placeholder="0" oninput="calcF6(${id})"></div><div><label>Consumo por equipo (kWh/h)</label><input type="number" id="f6k-${id}" min="0" step="0.001" placeholder="0.000" oninput="calcF6(${id})"></div></div>
-    <div class="field-row"><div><label>Horas de uso al día</label><input type="number" id="f6h-${id}" min="0" step="0.5" placeholder="0" oninput="calcF6(${id})"></div><div><label>Días al mes</label><div class="dias-fijo">20 días (fijo)</div></div></div>
+    <div class="field-row"><div><label>Equipo específico</label><select id="f6e-${id}" onchange="setConsumoF6(${id})"><option value="">Seleccionar tipo primero</option></select></div><div><label>Marca</label><input type="text" id="f6m-${id}" placeholder="Ej: Samsung"></div></div>
+    <div class="field-row"><div><label>Cantidad de equipos</label><input type="number" id="f6c-${id}" min="1" placeholder="0" oninput="calcF6(${id})"></div><div><label>Consumo por equipo (kWh/h)</label><input type="number" id="f6k-${id}" min="0" step="0.001" placeholder="0.000" readonly></div></div>
+    <div class="field-row"><div><label>Horas de uso al día</label><input type="number" id="f6h-${id}" min="0" step="0.5" placeholder="0" oninput="calcF6(${id})"></div><div><label>Días al mes</label><input type="number" id="f6d-${id}" min="0" placeholder="0" oninput="calcF6(${id})"></div></div>
     <div class="f6-total-line" id="f6r-${id}">Consumo mensual estimado: <strong>—</strong></div>
   </div>`;
   c.appendChild(b);
@@ -352,14 +379,23 @@ function addF6(){
 function updF6Eq(id){
   const tipo=document.getElementById('f6t-'+id).value;
   const sel=document.getElementById('f6e-'+id);
-  sel.innerHTML='<option value="">Seleccionar</option>'+(EQUIPOS_F6[tipo]||[]).map(e=>`<option>${e}</option>`).join('');
+  sel.innerHTML='<option value="">Seleccionar</option>'+(EQUIPOS_F6[tipo]||[]).map(e=>`<option>${e}</option>`).join('');document.getElementById('f6k-'+id).value='';calcF6(id);
+}
+
+
+function setConsumoF6(id){
+  const eq=document.getElementById('f6e-'+id).value;
+  const inp=document.getElementById('f6k-'+id);
+  inp.value=(CONSUMO_F6[eq] ?? 0).toFixed(3);
+  calcF6(id);
 }
 
 function calcF6(id){
   const cant=parseFloat(document.getElementById('f6c-'+id).value)||0;
   const kwh=parseFloat(document.getElementById('f6k-'+id).value)||0;
   const hrs=parseFloat(document.getElementById('f6h-'+id).value)||0;
-  const total=cant*kwh*hrs*DIAS_MES;
+  const dias=parseFloat(document.getElementById('f6d-'+id)?.value)||0;
+  const total=cant*kwh*hrs*dias;
   f6Totales[id]=total;
   document.getElementById('f6r-'+id).innerHTML='Consumo mensual estimado: <strong>'+total.toFixed(2)+' kWh</strong>';
   calcF6Total();
@@ -410,12 +446,12 @@ function generarResumen(){
   let adeq=0,inadeq=0;
   document.querySelectorAll('#t5body .clasif-cell').forEach(c=>{if(c.textContent.includes('Inadecuado')) inadeq++;else if(c.textContent.includes('Adecuado')) adeq++;});
   const a1=document.getElementById('a1').value,a2=document.getElementById('a2').value;
-  const a3=document.getElementById('a3').value,a4=document.getElementById('a4').value;
+  const a3=document.getElementById('a3').value,a4=document.getElementById('a4').value,a5=document.getElementById('a5').value;
   let html=`<div class="resumen-card"><h3>Grupo e institución</h3><div class="resumen-item">Poderoso: <strong>${alumno}</strong></div><div class="resumen-item">Institución: <strong>${inst}</strong></div></div>`;
   if(areas.length){html+=`<div class="resumen-card"><h3>Áreas e inventario de equipos</h3>`;areas.forEach(a=>{html+=`<div class="resumen-item" style="margin-top:4px"><strong>${a.area}</strong> — nivel de uso: ${a.nivel}</div>`;a.eqs.forEach(e=>html+=`<div class="resumen-item" style="padding-left:12px">• ${e}</div>`);});html+=`</div>`;}
   html+=`<div class="resumen-card"><h3>Consumo energético</h3><div class="resumen-item">Promedio mensual: <strong>${nMed>0?(totalKwh/nMed).toFixed(2):'—'} kWh</strong> (${nMed} mes(es))</div><div class="resumen-item">Consumo estimado por actividades: <strong>${f6t}</strong></div></div>`;
   html+=`<div class="resumen-card"><h3>Hábitos de consumo</h3><div class="resumen-item">Hábitos adecuados: <strong>${adeq}</strong></div><div class="resumen-item">Hábitos inadecuados: <strong>${inadeq}</strong></div></div>`;
-  if(a1||a2||a3||a4){html+=`<div class="resumen-card"><h3>Análisis final</h3>`;if(a1) html+=`<div class="resumen-item"><strong>Mayor consumo:</strong> ${a1}</div>`;if(a2) html+=`<div class="resumen-item"><strong>Desperdicio:</strong> ${a2}</div>`;if(a3) html+=`<div class="resumen-item"><strong>Equipos de mayor consumo:</strong> ${a3}</div>`;if(a4) html+=`<div class="resumen-item"><strong>Prácticas inadecuadas:</strong> ${a4}</div>`;html+=`</div>`;}
+  if(a1||a2||a3||a4||a5){html+=`<div class="resumen-card"><h3>Análisis final</h3>`;if(a1) html+=`<div class="resumen-item"><strong>Mayor consumo:</strong> ${a1}</div>`;if(a2) html+=`<div class="resumen-item"><strong>Desperdicio:</strong> ${a2}</div>`;if(a3) html+=`<div class="resumen-item"><strong>Equipos de mayor consumo:</strong> ${a3}</div>`;if(a4) html+=`<div class="resumen-item"><strong>Prácticas inadecuadas:</strong> ${a4}</div>`;if(a5) html+=`<div class="resumen-item"><strong>Acciones propuestas:</strong> ${a5}</div>`;html+=`</div>`;}
   rc.innerHTML=html;
 }
 
