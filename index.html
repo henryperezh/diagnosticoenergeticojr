@@ -456,10 +456,57 @@ function generarResumen(){
 }
 
 function enviar(){
-  const alumno=document.getElementById('alumno').value;
+  const alumno = document.getElementById('alumno').value;
+
   if(!alumno){
-    const s=document.getElementById('status-msg');s.className='status err';s.textContent='Debe seleccionar el nombre del poderoso.';return;
+    const s = document.getElementById('status-msg');
+    s.className='status err';
+    s.textContent='Debe seleccionar el nombre del poderoso.';
+    return;
   }
+
+  if(!APPS_SCRIPT_URL){
+    const s = document.getElementById('status-msg');
+    s.className='status err';
+    s.textContent='Falta configurar URL de Google Apps Script.';
+    return;
+  }
+
+  const data = {
+    fecha: new Date().toLocaleString(),
+    alumno: alumno,
+
+    fase1: document.getElementById('areas-container').innerText,
+    fase3: document.getElementById('t3body').innerText,
+    fase4: document.getElementById('t4body').innerText,
+    fase5: document.getElementById('t5body').innerText,
+    fase6: document.getElementById('f6-container').innerText
+  };
+
+  const btn = document.getElementById('btnEnviar');
+  btn.disabled = true;
+  btn.textContent = 'Enviando...';
+
+  fetch(APPS_SCRIPT_URL,{
+    method:'POST',
+    body: JSON.stringify(data)
+  })
+  .then(r=>r.text())
+  .then(()=>{
+    const s = document.getElementById('status-msg');
+    s.className='status ok';
+    s.textContent='Datos guardados correctamente.';
+    btn.disabled=false;
+    btn.textContent='Guardar en Google Sheets';
+  })
+  .catch(()=>{
+    const s = document.getElementById('status-msg');
+    s.className='status err';
+    s.textContent='Error al enviar.';
+    btn.disabled=false;
+    btn.textContent='Guardar en Google Sheets';
+  });
+}
 
   if(!APPS_SCRIPT_URL){
     const s=document.getElementById('status-msg');s.className='status err';
