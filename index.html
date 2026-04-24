@@ -82,8 +82,8 @@ textarea{resize:vertical;min-height:70px}
 <div class="header">
   <div class="header-top"><span class="sena-badge">VIJES VISIBLE</span><h1>Guía de diagnóstico de consumo de energía</h1></div>
   <div class="field-row">
-    <div><label>Institución educativa</label><input type="text" id="institucion" value="Jorge Robledo"></div>
-    <div><label>Nombre del grupo</label><input type="text" id="grupo" value="Poderoso Grupo Escolar"></div>
+    <div><label>Institución educativa</label><input type="text" id="institucion" value="Jorge Robledo" readonly></div>
+    <div><label>Nombre del grupo</label><input type="text" id="grupo" value="Poderoso Grupo Escolar" readonly></div>
   </div>
   <div class="field-row">
     <div><label>Poderoso</label>
@@ -99,7 +99,7 @@ textarea{resize:vertical;min-height:70px}
         <option>Henry</option>
       </select>
     </div>
-    <div><label>Correo electrónico</label><input type="email" id="correo" placeholder="correo@ejemplo.com"></div>
+    <div><label>Estado</label><div class="info-box">Nombre del poderoso es obligatorio</div></div>
   </div>
 </div>
 
@@ -211,7 +211,8 @@ textarea{resize:vertical;min-height:70px}
 </div>
 
 <script>
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyCEno4wKCk4eFPbHe2ezSbJDv3EKzz7zxxDish_n_qNsnR2hNQBq46i1f-2FpPjZG0/exec';
+const APPS_SCRIPT_URL = ''; // Pegar aquí el URL del Apps Script cuando esté listo
+
 const AREAS_OPTS=['Cafetería','Salón de mecánica','Biblioteca','Salones de clase','Oficinas','Sala de sistemas','Zonas comunes','Otro'];
 const EQUIPOS_OPTS=['Bombillos','Computadores','Ventiladores','Aires acondicionados','Neveras','Impresoras','Proyectores','Otros'];
 const MESES=['Marzo 2025','Abril 2025','Mayo 2025','Junio 2025','Julio 2025','Agosto 2025','Septiembre 2025','Octubre 2025','Noviembre 2025','Diciembre 2025','Enero 2026','Febrero 2026','Marzo 2026'];
@@ -455,12 +456,17 @@ function generarResumen(){
 }
 
 function enviar(){
+  const alumno=document.getElementById('alumno').value;
+  if(!alumno){
+    const s=document.getElementById('status-msg');s.className='status err';s.textContent='Debe seleccionar el nombre del poderoso.';return;
+  }
+
   if(!APPS_SCRIPT_URL){
     const s=document.getElementById('status-msg');s.className='status err';
     s.textContent='Falta configurar el URL de Google Apps Script en el archivo.';return;
   }
   const btn=document.getElementById('btnEnviar');btn.disabled=true;btn.textContent='Enviando...';
-  fetch(APPS_SCRIPT_URL,{method:'POST',body:JSON.stringify({alumno:document.getElementById('alumno').value,correo:document.getElementById('correo').value})})
+  fetch(APPS_SCRIPT_URL,{method:'POST',body:JSON.stringify({alumno:document.getElementById('alumno').value})})
     .then(()=>{const s=document.getElementById('status-msg');s.className='status ok';s.textContent='Datos guardados correctamente.';btn.textContent='Guardar en Google Sheets';btn.disabled=false;})
     .catch(()=>{const s=document.getElementById('status-msg');s.className='status err';s.textContent='Error al enviar. Verifique el URL del Apps Script.';btn.textContent='Guardar en Google Sheets';btn.disabled=false;});
 }
